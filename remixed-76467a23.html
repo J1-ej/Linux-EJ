@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux за 30 дней · Backend & Security</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Unbounded:wght@400;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f0a;--surface:#141710;--surface2:#1c2014;--surface3:#23281a;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#edf2e0;--muted:#8a9a70;--dim:#4a5a35;--accent:#84cc16;--accent-dim:rgba(132,204,22,0.12);--accent-border:rgba(132,204,22,0.3);--blue:#38bdf8;--blue-dim:rgba(56,189,248,0.12);--blue-border:rgba(56,189,248,0.3);--amber:#fbbf24;--amber-dim:rgba(251,191,36,0.12);--amber-border:rgba(251,191,36,0.3);--red:#f87171;--red-dim:rgba(248,113,113,0.12);--red-border:rgba(248,113,113,0.3);--radius:14px;--radius-sm:8px;--font:'Manrope',sans-serif;--font-display:'Unbounded',sans-serif;--font-mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.7;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.4}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(132,204,22,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(132,204,22,0.015) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.container{max-width:780px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
+.header{padding:60px 0 40px;text-align:center}
+.header-badge{display:inline-flex;align-items:center;gap:8px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:40px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:28px}
+.header-badge span{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.5)}}
+.header h1{font-family:var(--font-display);font-size:clamp(26px,5.5vw,48px);font-weight:700;line-height:1.1;margin-bottom:16px;letter-spacing:-1px}
+.header h1 .accent{color:var(--accent)}
+.header p{color:var(--muted);font-size:16px;max-width:500px;margin:0 auto 28px}
+.header-tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.htag{padding:5px 14px;border-radius:40px;font-size:12px;font-weight:600;border:1px solid}
+.htag-g{color:var(--accent);background:var(--accent-dim);border-color:var(--accent-border)}
+.htag-b{color:var(--blue);background:var(--blue-dim);border-color:var(--blue-border)}
+.htag-a{color:var(--amber);background:var(--amber-dim);border-color:var(--amber-border)}
+.htag-r{color:var(--red);background:var(--red-dim);border-color:var(--red-border)}
+.progress-section{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:20px 24px;margin-bottom:32px}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.progress-top span{font-size:13px;color:var(--muted)}.progress-top strong{font-size:18px;font-weight:700;color:var(--accent);font-family:var(--font-display)}
+.bar-track{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#22d3ee);border-radius:3px;transition:width 0.5s}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.stat{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;text-align:center}
+.stat-val{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text)}.stat-label{font-size:11px;color:var(--muted);margin-top:2px}
+.week-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:28px}
+.wnav{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;cursor:pointer;text-align:center;transition:all 0.2s}
+.wnav:hover{border-color:var(--border2);background:var(--surface2)}
+.wnav.aw1{background:var(--accent-dim);border-color:var(--accent-border)}.wnav.aw1 .wn{color:var(--accent)}
+.wnav.aw2{background:var(--blue-dim);border-color:var(--blue-border)}.wnav.aw2 .wn{color:var(--blue)}
+.wnav.aw3{background:var(--amber-dim);border-color:var(--amber-border)}.wnav.aw3 .wn{color:var(--amber)}
+.wnav.aw4{background:var(--red-dim);border-color:var(--red-border)}.wnav.aw4 .wn{color:var(--red)}
+.wnav .wn{font-family:var(--font-display);font-size:20px;font-weight:700;display:block;margin-bottom:2px;color:var(--dim)}
+.wnav .wt{font-size:11px;color:var(--muted)}
+.week-section{display:none}.week-section.show{display:block}
+.week-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.week-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.w1 .week-icon{background:var(--accent-dim)}.w2 .week-icon{background:var(--blue-dim)}.w3 .week-icon{background:var(--amber-dim)}.w4 .week-icon{background:var(--red-dim)}
+.week-meta h2{font-family:var(--font-display);font-size:16px;font-weight:600}.week-meta p{font-size:12px;color:var(--muted);margin-top:2px}
+.day-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:border-color 0.2s}
+.day-card:hover{border-color:var(--border2)}.day-card.done{border-color:rgba(132,204,22,0.4)}
+.day-head{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none}
+.day-num{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:12px;font-weight:700;flex-shrink:0}
+.w1 .day-num{background:var(--accent-dim);color:var(--accent)}.w2 .day-num{background:var(--blue-dim);color:var(--blue)}.w3 .day-num{background:var(--amber-dim);color:var(--amber)}.w4 .day-num{background:var(--red-dim);color:var(--red)}
+.day-title{font-size:14px;font-weight:600;flex:1}.day-check{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;transition:all 0.2s}
+.day-card.done .day-check{background:var(--accent);border-color:var(--accent);color:#0a1a00}
+.day-arrow{font-size:12px;color:var(--dim);transition:transform 0.2s;flex-shrink:0}
+.day-card.open .day-arrow{transform:rotate(90deg)}
+.day-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}.day-card.open .day-body{display:block}
+.section-row{margin-top:14px}.section-row label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:6px}
+.section-row p{font-size:13px;color:var(--muted);line-height:1.65}
+.code-block{background:#080c04;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-top:8px;font-family:var(--font-mono);font-size:12px;line-height:1.75;overflow-x:auto}
+.code-block .cm{color:var(--dim)}.code-block .kw{color:#86efac;font-weight:600}.code-block .fn{color:#bef264}.code-block .str{color:#fde68a}.code-block .num{color:#7dd3fc}.code-block .hl{color:var(--accent);font-weight:600}.code-block .prompt{color:var(--accent)}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.pill{font-family:var(--font-mono);font-size:11px;padding:2px 8px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
+.tip{border:1px solid;border-radius:var(--radius-sm);padding:10px 14px;margin-top:10px}
+.tip-warn{background:var(--amber-dim);border-color:var(--amber-border)}.tip-warn .tip-label{color:var(--amber)}
+.tip-info{background:var(--accent-dim);border-color:var(--accent-border)}.tip-info .tip-label{color:var(--accent)}
+.tip-danger{background:var(--red-dim);border-color:var(--red-border)}.tip-danger .tip-label{color:var(--red)}
+.tip .tip-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.tip p{font-size:12px;line-height:1.6;color:var(--muted)}
+.answer-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);margin-top:8px;overflow:hidden}
+.answer-toggle{padding:10px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px;user-select:none}
+.answer-toggle::before{content:'▶';font-size:9px;transition:transform 0.2s}.answer-toggle.open::before{transform:rotate(90deg)}
+.answer-content{display:none;padding:0 14px 14px;border-top:1px solid var(--border)}.answer-content.show{display:block}
+.answer-content p{font-size:12px;color:var(--muted);line-height:1.65;margin-top:10px}
+.task-box{background:var(--surface2);border:1px solid var(--border);border-left:3px solid;border-radius:var(--radius-sm);padding:12px 14px;margin-top:10px}
+.w1 .task-box{border-left-color:var(--accent)}.w2 .task-box{border-left-color:var(--blue)}.w3 .task-box{border-left-color:var(--amber)}.w4 .task-box{border-left-color:var(--red)}
+.task-box .task-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.w1 .task-box .task-label{color:var(--accent)}.w2 .task-box .task-label{color:var(--blue)}.w3 .task-box .task-label{color:var(--amber)}.w4 .task-box .task-label{color:var(--red)}
+.task-box p{font-size:12px;color:var(--muted);line-height:1.6}
+.table-wrap{overflow-x:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--surface3);padding:8px 12px;text-align:left;font-weight:600;color:var(--text);border:1px solid var(--border2)}
+td{padding:7px 12px;border:1px solid var(--border);color:var(--muted)}
+tr:nth-child(even) td{background:var(--surface2)}
+.schema{background:#080c04;border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-top:8px;font-family:var(--font-mono);font-size:12px;line-height:1.9;color:var(--muted);overflow-x:auto}
+.schema .hl{color:var(--accent)}.schema .arrow{color:var(--amber)}.schema .label{color:var(--blue)}
+.mini-project{border-radius:var(--radius);padding:22px 24px;margin:20px 0;border:1px solid}
+.w1 .mini-project{background:var(--accent-dim);border-color:var(--accent-border)}.w2 .mini-project{background:var(--blue-dim);border-color:var(--blue-border)}.w3 .mini-project{background:var(--amber-dim);border-color:var(--amber-border)}.w4 .mini-project{background:var(--red-dim);border-color:var(--red-border)}
+.mp-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.w1 .mp-label{color:var(--accent)}.w2 .mp-label{color:var(--blue)}.w3 .mp-label{color:var(--amber)}.w4 .mp-label{color:var(--red)}
+.mini-project h3{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px}
+.mini-project p{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:10px}
+.checklist{list-style:none}.checklist li{font-size:13px;color:var(--muted);padding:4px 0;display:flex;gap:8px;align-items:flex-start}
+.w1 .checklist li::before{content:"▶";color:var(--accent);font-size:9px;margin-top:5px;flex-shrink:0}
+.w2 .checklist li::before{content:"▶";color:var(--blue);font-size:9px;margin-top:5px;flex-shrink:0}
+.w3 .checklist li::before{content:"▶";color:var(--amber);font-size:9px;margin-top:5px;flex-shrink:0}
+.w4 .checklist li::before{content:"▶";color:var(--red);font-size:9px;margin-top:5px;flex-shrink:0}
+.footer{text-align:center;padding:48px 0 32px;color:var(--dim);font-size:13px;border-top:1px solid var(--border);margin-top:40px}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+  <div class="header-badge"><span></span>Курс активен · 30 дней</div>
+  <h1>Linux для <span class="accent">разработчика</span></h1>
+  <p>Перестань бояться терминала. Научись управлять сервером на котором работает твой Backend.</p>
+  <div class="header-tags">
+    <span class="htag htag-g">Terminal</span>
+    <span class="htag htag-b">Server Admin</span>
+    <span class="htag htag-a">Bash Scripts</span>
+    <span class="htag htag-r">Security</span>
+  </div>
+</div>
+<div class="progress-section">
+  <div class="progress-top"><span>Общий прогресс</span><strong id="prog-val">0%</strong></div>
+  <div class="bar-track"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+  <div class="stats-grid">
+    <div class="stat"><div class="stat-val" id="done-count">0</div><div class="stat-label">выполнено дней</div></div>
+    <div class="stat"><div class="stat-val">4</div><div class="stat-label">мини-проекта</div></div>
+    <div class="stat"><div class="stat-val">30</div><div class="stat-label">всего задач</div></div>
+  </div>
+</div>
+<div class="week-nav">
+  <div class="wnav aw1" onclick="showWeek(1)"><span class="wn">W1</span><span class="wt">Терминал</span></div>
+  <div class="wnav" onclick="showWeek(2)"><span class="wn">W2</span><span class="wt">Файлы & Логи</span></div>
+  <div class="wnav" onclick="showWeek(3)"><span class="wn">W3</span><span class="wt">Права & Юзеры</span></div>
+  <div class="wnav" onclick="showWeek(4)"><span class="wn">W4</span><span class="wt">Автоматизация</span></div>
+</div>
+
+<!-- W1 -->
+<div id="week1" class="week-section w1 show">
+  <div class="week-header"><div class="week-icon">⌨️</div><div class="week-meta"><h2>Неделя 1 — Выживание в терминале</h2><p>Дни 1–7 · Основные команды · Мини-проект: Файловый спринт</p></div></div>
+
+  <div class="day-card" id="d1">
+    <div class="day-head" onclick="toggleCard('d1')"><div class="day-num">01</div><div class="day-title">Установка Ubuntu / WSL и первые команды</div><div class="day-check" onclick="event.stopPropagation();markDone('d1')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>Linux — операционная система большинства серверов в мире. Ubuntu — самый популярный дистрибутив для разработчиков. WSL (Windows Subsystem for Linux) позволяет запустить Linux прямо в Windows 10/11 без виртуальной машины.</p></div>
+      <div class="section-row"><label>Установка WSL (Windows)</label>
+        <div class="code-block"><span class="cm"># В PowerShell от администратора:</span>
+wsl --install                    <span class="cm"># установит Ubuntu по умолчанию</span>
+wsl --install -d Ubuntu-22.04    <span class="cm"># конкретная версия</span>
+wsl --list --verbose             <span class="cm"># список установленных</span>
+
+<span class="cm"># Первые команды после входа:</span>
+<span class="prompt">$</span> whoami                         <span class="cm"># кто ты?</span>
+<span class="prompt">$</span> hostname                        <span class="cm"># имя машины</span>
+<span class="prompt">$</span> uname -a                        <span class="cm"># версия ядра Linux</span>
+<span class="prompt">$</span> echo $HOME                      <span class="cm"># домашняя папка</span>
+<span class="prompt">$</span> echo $SHELL                     <span class="cm"># твоя оболочка (bash/zsh)</span>
+<span class="prompt">$</span> date                            <span class="cm"># текущая дата и время</span>
+<span class="prompt">$</span> uptime                          <span class="cm"># сколько работает система</span>
+<span class="prompt">$</span> history                         <span class="cm"># история команд</span></div>
+      </div>
+      <div class="tip tip-info"><div class="tip-label">💡 Структура команды</div><p><code>команда -опции аргументы</code>. Например: <code>ls -la /home</code> — команда ls, опции -l (длинный формат) и -a (скрытые файлы), аргумент /home. Опции можно объединять: <code>-la</code> = <code>-l -a</code>.</p></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Установи Ubuntu/WSL. Выполни все команды выше. Найди: версию ядра, сколько времени работает система, путь к домашней папке. Запиши вывод каждой команды.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d2">
+    <div class="day-head" onclick="toggleCard('d2')"><div class="day-num">02</div><div class="day-title">Навигация: ls, cd, pwd, tree</div><div class="day-check" onclick="event.stopPropagation();markDone('d2')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>В Linux всё — файлы и папки. <code>pwd</code> (Print Working Directory) показывает где ты. <code>ls</code> — список файлов. <code>cd</code> — смена директории. Абсолютный путь начинается с <code>/</code>, относительный — с текущей папки.</p></div>
+      <div class="code-block"><span class="prompt">$</span> pwd                    <span class="cm"># /home/alisher</span>
+<span class="prompt">$</span> ls                     <span class="cm"># файлы в текущей папке</span>
+<span class="prompt">$</span> ls -l                  <span class="cm"># подробный список</span>
+<span class="prompt">$</span> ls -la                 <span class="cm"># + скрытые файлы (начинаются с .)</span>
+<span class="prompt">$</span> ls -lh                 <span class="cm"># размеры в читаемом виде (KB, MB)</span>
+<span class="prompt">$</span> ls /etc                <span class="cm"># содержимое другой папки</span>
+
+<span class="cm"># Навигация</span>
+<span class="prompt">$</span> cd /etc               <span class="cm"># перейти по абсолютному пути</span>
+<span class="prompt">$</span> cd ..                  <span class="cm"># на уровень выше</span>
+<span class="prompt">$</span> cd ~                   <span class="cm"># в домашнюю папку</span>
+<span class="prompt">$</span> cd -                   <span class="cm"># в предыдущую папку</span>
+<span class="prompt">$</span> cd ~/projects/app      <span class="cm"># относительно домашней</span>
+
+<span class="cm"># Дерево папок</span>
+<span class="prompt">$</span> sudo apt install tree
+<span class="prompt">$</span> tree -L 2 ~            <span class="cm"># дерево глубиной 2 уровня</span></div>
+      <div class="section-row"><label>Вывод ls -la</label>
+        <div class="schema"><span class="hl">drwxr-xr-x</span> 5 alisher alisher 4096 May  1 12:00 <span class="label">projects</span>
+<span class="hl">-rw-r--r--</span> 1 alisher alisher  220 May  1 09:00 <span class="label">.bashrc</span>
+<span class="arrow">↑тип+права ↑links ↑owner ↑group ↑size ↑дата   ↑имя</span>
+<span class="hl">d</span> = папка, <span class="hl">-</span> = файл, <span class="hl">l</span> = символическая ссылка</div>
+      </div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Пройди путь: <code>/</code> → <code>/etc</code> → <code>/var</code> → <code>/var/log</code> → домашняя папка — используя только <code>cd</code>. В каждой папке выполни <code>ls -la</code>. Установи <code>tree</code> и посмотри структуру своей домашней папки на 3 уровня.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d3">
+    <div class="day-head" onclick="toggleCard('d3')"><div class="day-num">03</div><div class="day-title">Создание папок и файлов: mkdir, touch</div><div class="day-check" onclick="event.stopPropagation();markDone('d3')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="code-block"><span class="cm"># Создание папок</span>
+<span class="prompt">$</span> mkdir projects                          <span class="cm"># создать папку</span>
+<span class="prompt">$</span> mkdir -p projects/python/app1            <span class="cm"># создать вложенные сразу</span>
+<span class="prompt">$</span> mkdir -p backend/{api,models,tests}      <span class="cm"># несколько сразу</span>
+
+<span class="cm"># Создание файлов</span>
+<span class="prompt">$</span> touch file.txt                           <span class="cm"># пустой файл</span>
+<span class="prompt">$</span> touch notes.py config.env README.md      <span class="cm"># несколько файлов</span>
+
+<span class="cm"># Копирование</span>
+<span class="prompt">$</span> cp file.txt backup.txt                   <span class="cm"># скопировать файл</span>
+<span class="prompt">$</span> cp -r projects/ projects_backup/         <span class="cm"># скопировать папку (-r рекурсивно)</span>
+
+<span class="cm"># Перемещение / переименование</span>
+<span class="prompt">$</span> mv file.txt /tmp/file.txt                <span class="cm"># переместить</span>
+<span class="prompt">$</span> mv backup.txt archive.txt                <span class="cm"># переименовать</span>
+
+<span class="cm"># Удаление</span>
+<span class="prompt">$</span> rm file.txt                              <span class="cm"># удалить файл</span>
+<span class="prompt">$</span> rm -r projects_backup/                   <span class="cm"># удалить папку со всем содержимым</span>
+<span class="prompt">$</span> rmdir empty_dir/                         <span class="cm"># удалить ТОЛЬКО пустую папку</span></div>
+      <div class="tip tip-danger"><div class="tip-label">⚠ ОПАСНО</div><p><code>rm -rf /</code> удалит ВСЁ с системы без возможности восстановления. Никогда не добавляй <code>-f</code> (force) без понимания что делаешь. В Linux нет «корзины» для файлов удалённых через терминал.</p></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Создай структуру: <code>~/Projects/Backend/api/</code>, <code>~/Projects/Backend/models/</code>, <code>~/Projects/Backend/tests/</code>. В каждой папке создай файл <code>README.md</code>. Скопируй структуру как <code>Projects_backup/</code>. Выведи дерево через tree.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d4">
+    <div class="day-head" onclick="toggleCard('d4')"><div class="day-num">04</div><div class="day-title">Чтение файлов: cat, less, head, tail</div><div class="day-check" onclick="event.stopPropagation();markDone('d4')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="code-block"><span class="cm"># Полный вывод файла</span>
+<span class="prompt">$</span> cat /etc/hostname            <span class="cm"># вывести всё содержимое</span>
+<span class="prompt">$</span> cat -n file.txt               <span class="cm"># с номерами строк</span>
+
+<span class="cm"># Постраничный просмотр (для больших файлов)</span>
+<span class="prompt">$</span> less /var/log/syslog          <span class="cm"># листать: пробел/b, поиск /слово, выход q</span>
+
+<span class="cm"># Первые/последние строки</span>
+<span class="prompt">$</span> head -n 10 /var/log/syslog   <span class="cm"># первые 10 строк</span>
+<span class="prompt">$</span> tail -n 20 /var/log/syslog   <span class="cm"># последние 20 строк</span>
+<span class="prompt">$</span> tail -f /var/log/syslog       <span class="cm"># LIVE мониторинг! (Ctrl+C для выхода)</span>
+
+<span class="cm"># wc: подсчёт слов/строк/байт</span>
+<span class="prompt">$</span> wc -l /etc/passwd             <span class="cm"># сколько строк в файле</span>
+<span class="prompt">$</span> wc -w document.txt            <span class="cm"># количество слов</span></div>
+      <div class="tip tip-info"><div class="tip-label">💡 tail -f для разработчика</div><p><code>tail -f /var/log/nginx/access.log</code> — незаменим при отладке. Ты видишь каждый запрос к серверу в реальном времени. Используй с <code>grep</code>: <code>tail -f app.log | grep "ERROR"</code></p></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Прочитай файл <code>/etc/passwd</code> — сколько строк? Что означает каждое поле (через двоеточие)? Запусти <code>tail -f /var/log/syslog</code> в одном терминале. В другом терминале выполни любые команды — наблюдай как сыплются записи в лог.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d5">
+    <div class="day-head" onclick="toggleCard('d5')"><div class="day-num">05</div><div class="day-title">Редактор nano: основы работы</div><div class="day-check" onclick="event.stopPropagation();markDone('d5')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>nano — простой консольный текстовый редактор. Всегда доступен на серверах. Управление через Ctrl+буква (показано внизу экрана). Незаменим для быстрого редактирования конфигов.</p></div>
+      <div class="code-block"><span class="prompt">$</span> nano filename.txt            <span class="cm"># открыть/создать файл</span>
+
+<span class="cm"># Горячие клавиши внутри nano:</span>
+<span class="cm"># Ctrl+O → сохранить (Write Out)</span>
+<span class="cm"># Ctrl+X → выйти</span>
+<span class="cm"># Ctrl+K → вырезать строку</span>
+<span class="cm"># Ctrl+U → вставить</span>
+<span class="cm"># Ctrl+W → поиск (Where is)</span>
+<span class="cm"># Ctrl+\ → замена</span>
+<span class="cm"># Ctrl+G → справка</span>
+<span class="cm"># Alt+U  → отменить действие</span>
+
+<span class="cm"># Создание bash-скрипта через nano</span>
+<span class="prompt">$</span> nano hello.sh
+<span class="cm"># Внутри напиши:</span>
+<span class="kw">#!/bin/bash</span>
+<span class="fn">echo</span> <span class="str">"Привет, $USER!"</span>
+<span class="fn">echo</span> <span class="str">"Сегодня: $(date)"</span>
+<span class="fn">echo</span> <span class="str">"Директория: $(pwd)"</span>
+<span class="cm"># Ctrl+O → Enter → Ctrl+X</span>
+<span class="prompt">$</span> chmod +x hello.sh && ./hello.sh</div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Создай через nano файл <code>about_me.txt</code> с информацией: имя, чем занимаешься, цель обучения. Сохрани. Потом отредактируй — добавь дату. Создай bash-скрипт <code>hello.sh</code> который выводит приветствие с датой. Сделай его исполняемым и запусти.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d6">
+    <div class="day-head" onclick="toggleCard('d6')"><div class="day-num">06</div><div class="day-title">Горячие клавиши и продуктивность терминала</div><div class="day-check" onclick="event.stopPropagation();markDone('d6')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>Профессиональный разработчик почти не использует мышку в терминале. Горячие клавиши Bash экономят часы времени каждый день.</p></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Комбинация</th><th>Действие</th></tr></thead>
+        <tbody>
+          <tr><td><code>Tab</code></td><td>Автодополнение команд и путей</td></tr>
+          <tr><td><code>Tab Tab</code></td><td>Показать все варианты</td></tr>
+          <tr><td><code>↑ / ↓</code></td><td>История команд</td></tr>
+          <tr><td><code>Ctrl+R</code></td><td>Поиск по истории команд</td></tr>
+          <tr><td><code>Ctrl+C</code></td><td>Прервать выполняющуюся команду</td></tr>
+          <tr><td><code>Ctrl+Z</code></td><td>Приостановить процесс</td></tr>
+          <tr><td><code>Ctrl+L</code></td><td>Очистить экран (как clear)</td></tr>
+          <tr><td><code>Ctrl+A</code></td><td>Начало строки</td></tr>
+          <tr><td><code>Ctrl+E</code></td><td>Конец строки</td></tr>
+          <tr><td><code>Ctrl+W</code></td><td>Удалить слово назад</td></tr>
+          <tr><td><code>!!</code></td><td>Повторить последнюю команду</td></tr>
+          <tr><td><code>sudo !!</code></td><td>Повторить последнюю с sudo</td></tr>
+          <tr><td><code>command &</code></td><td>Запустить в фоне</td></tr>
+        </tbody>
+      </table></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Выучи 5 горячих клавиш наизусть: Tab, Ctrl+R, Ctrl+C, Ctrl+L, !!. Попрактикуй каждую минимум 10 раз. Найди в истории команду с Ctrl+R по ключевому слову. Запусти команду <code>sleep 100</code> и останови через Ctrl+C.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d7">
+    <div class="day-head" onclick="toggleCard('d7')"><div class="day-num">07</div><div class="day-title">Переменные окружения и .bashrc</div><div class="day-check" onclick="event.stopPropagation();markDone('d7')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>Переменные окружения — это именованные значения доступные всем процессам в системе. <code>PATH</code> определяет где Bash ищет команды. <code>.bashrc</code> и <code>.bash_profile</code> — файлы инициализации, выполняемые при старте оболочки. Настройка этих файлов делает работу в терминале намного удобнее.</p></div>
+      <div class="code-block"><span class="cm"># Просмотр переменных окружения</span>
+<span class="prompt">$</span> env                          <span class="cm"># все переменные</span>
+<span class="prompt">$</span> printenv PATH                <span class="cm"># значение конкретной</span>
+<span class="prompt">$</span> echo $HOME                   <span class="cm"># домашняя папка</span>
+<span class="prompt">$</span> echo $USER                   <span class="cm"># текущий пользователь</span>
+<span class="prompt">$</span> echo $PATH                   <span class="cm"># пути поиска команд</span>
+
+<span class="cm"># Установка переменных</span>
+<span class="prompt">$</span> MY_VAR="hello"               <span class="cm"># локальная (только текущий shell)</span>
+<span class="prompt">$</span> export MY_VAR="hello"        <span class="cm"># экспортировать в дочерние процессы</span>
+<span class="prompt">$</span> export DB_HOST="localhost"   <span class="cm"># типичный пример для приложений</span>
+
+<span class="cm"># .bashrc — конфигурация интерактивного shell</span>
+<span class="prompt">$</span> nano ~/.bashrc
+
+<span class="cm"># Добавь в .bashrc:</span>
+<span class="kw">alias</span> ll=<span class="str">'ls -la'</span>
+<span class="kw">alias</span> gs=<span class="str">'git status'</span>
+<span class="kw">alias</span> py=<span class="str">'python3'</span>
+<span class="kw">export</span> PATH=<span class="str">"$HOME/.local/bin:$PATH"</span>
+
+<span class="cm"># Применить изменения без перезапуска</span>
+<span class="prompt">$</span> source ~/.bashrc             <span class="cm"># или: . ~/.bashrc</span>
+
+<span class="cm"># Посмотреть все алиасы</span>
+<span class="prompt">$</span> alias</div>
+      <div class="tip tip-info"><div class="tip-label">💡 .env файлы в разработке</div><p>В реальных проектах секреты (API ключи, пароли) хранят в файле <code>.env</code> который никогда не коммитится в Git. Приложение читает их через переменные окружения. Пример: <code>DATABASE_URL=postgres://user:pass@localhost/db</code></p></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Создай 3 полезных алиаса в <code>~/.bashrc</code>: для быстрого перехода в папку Projects, для просмотра IP-адреса, для обновления системы. Добавь свой путь в PATH. Создай файл <code>.env</code> с переменными DB_HOST, DB_PORT, APP_SECRET и загрузи их через <code>source .env</code>. Проверь через <code>echo</code>.</p></div>
+    </div>
+  </div>
+
+  <div class="mini-project">
+    <div class="mp-label">🏆 Мини-проект · День 7</div>
+    <h3>Файловый спринт — только командами</h3>
+    <p>Создай, переместить и отредактируй 10 файлов используя только терминал, без мыши.</p>
+    <ul class="checklist">
+      <li>Создай структуру: <code>~/DevAcademy/{python,linux,networks,sql}/notes.md</code></li>
+      <li>В каждый <code>notes.md</code> добавь заголовок через <code>echo "# Тема" > file.md</code></li>
+      <li>Скопируй всю структуру как <code>~/DevAcademy_backup/</code></li>
+      <li>Создай файл <code>summary.txt</code> с перечнем всех файлов через <code>find</code></li>
+      <li>Бонус: напиши bash-скрипт который делает это всё автоматически</li>
+    </ul>
+  </div>
+</div>
+
+<!-- W2 -->
+<div id="week2" class="week-section w2">
+  <div class="week-header"><div class="week-icon">📁</div><div class="week-meta"><h2>Неделя 2 — Файловая система и логи</h2><p>Дни 8–14 · grep, find, логи, архивация · Мини-проект: Анализатор логов</p></div></div>
+
+  <div class="day-card" id="d8">
+    <div class="day-head" onclick="toggleCard('d8')"><div class="day-num">08</div><div class="day-title">Иерархия файловой системы Linux (FHS)</div><div class="day-check" onclick="event.stopPropagation();markDone('d8')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>Filesystem Hierarchy Standard — стандарт расположения файлов в Linux. Зная где что лежит, ты быстро ориентируешься на любом Linux-сервере.</p></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Папка</th><th>Назначение</th><th>Примеры файлов</th></tr></thead>
+        <tbody>
+          <tr><td><strong style="color:var(--accent)">/etc</strong></td><td>Конфигурационные файлы</td><td>nginx.conf, sshd_config, passwd</td></tr>
+          <tr><td><strong style="color:var(--accent)">/var/log</strong></td><td>Системные логи</td><td>syslog, auth.log, nginx/access.log</td></tr>
+          <tr><td><strong style="color:var(--blue)">/home</strong></td><td>Домашние папки пользователей</td><td>/home/alisher/</td></tr>
+          <tr><td><strong style="color:var(--blue)">/root</strong></td><td>Домашняя папка root</td><td>—</td></tr>
+          <tr><td><strong style="color:var(--amber)">/usr/bin</strong></td><td>Пользовательские программы</td><td>python3, git, curl</td></tr>
+          <tr><td><strong style="color:var(--amber)">/usr/lib</strong></td><td>Библиотеки программ</td><td>*.so файлы</td></tr>
+          <tr><td><strong style="color:var(--muted)">/tmp</strong></td><td>Временные файлы (очищается)</td><td>—</td></tr>
+          <tr><td><strong style="color:var(--muted)">/proc</strong></td><td>Виртуальная FS процессов</td><td>/proc/cpuinfo, /proc/meminfo</td></tr>
+          <tr><td><strong style="color:var(--muted)">/dev</strong></td><td>Устройства (файлы)</td><td>/dev/sda, /dev/null, /dev/random</td></tr>
+          <tr><td><strong style="color:var(--muted)">/mnt, /media</strong></td><td>Точки монтирования</td><td>USB, диски</td></tr>
+        </tbody>
+      </table></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Исследуй каждую папку из таблицы командой <code>ls -la</code>. Прочитай <code>/etc/hostname</code>, <code>/etc/os-release</code>, <code>/proc/cpuinfo</code> (модель CPU), <code>/proc/meminfo</code> (RAM). Найди конфиг SSH в <code>/etc/ssh/</code>.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d9">
+    <div class="day-head" onclick="toggleCard('d9')"><div class="day-num">09</div><div class="day-title">grep: поиск текста как профессионал</div><div class="day-check" onclick="event.stopPropagation();markDone('d9')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>grep (Global Regular Expression Print) — мощнейший инструмент поиска текста. Ищет по строкам, поддерживает регулярные выражения. Незаменим при анализе логов и отладке.</p></div>
+      <div class="code-block"><span class="cm"># Базовый поиск</span>
+<span class="prompt">$</span> grep "error" /var/log/syslog          <span class="cm"># найти строки с "error"</span>
+<span class="prompt">$</span> grep -i "error" app.log               <span class="cm"># -i игнорировать регистр</span>
+<span class="prompt">$</span> grep -n "error" app.log               <span class="cm"># -n с номерами строк</span>
+<span class="prompt">$</span> grep -v "DEBUG" app.log               <span class="cm"># -v исключить строки с DEBUG</span>
+<span class="prompt">$</span> grep -c "ERROR" app.log               <span class="cm"># -c подсчитать количество</span>
+
+<span class="cm"># Контекст вокруг найденного</span>
+<span class="prompt">$</span> grep -B 2 -A 3 "Exception" app.log    <span class="cm"># 2 строки до и 3 после</span>
+
+<span class="cm"># Рекурсивный поиск в папке</span>
+<span class="prompt">$</span> grep -r "password" /etc/             <span class="cm"># ищет во всех файлах /etc</span>
+<span class="prompt">$</span> grep -r "API_KEY" ~/projects/         <span class="cm"># найти ключи в коде (опасно!)</span>
+
+<span class="cm"># Регулярные выражения</span>
+<span class="prompt">$</span> grep -E "ERROR|CRITICAL" app.log      <span class="cm"># OR через |</span>
+<span class="prompt">$</span> grep -E "[0-9]{1,3}\.[0-9]{1,3}" access.log  <span class="cm"># IP-адреса</span>
+
+<span class="cm"># Комбо с конвейером</span>
+<span class="prompt">$</span> cat /var/log/auth.log | grep "Failed" | grep "root"</span>
+<span class="prompt">$</span> ps aux | grep python</span></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Найди в <code>/var/log/auth.log</code>: все попытки входа (grep "session opened"), неудачные попытки (grep "Failed"), попытки входа под root. Подсчитай количество каждого. Найди все файлы Python в <code>/usr</code> командой <code>grep -r "#!/usr/bin/python" /usr/bin/</code>.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d10">
+    <div class="day-head" onclick="toggleCard('d10')"><div class="day-num">10</div><div class="day-title">find: поиск файлов по всем параметрам</div><div class="day-check" onclick="event.stopPropagation();markDone('d10')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="code-block"><span class="cm"># Синтаксис: find [где] [условия] [действие]</span>
+
+<span class="cm"># По имени</span>
+<span class="prompt">$</span> find /home -name "*.py"              <span class="cm"># все Python-файлы</span>
+<span class="prompt">$</span> find . -name "config*"               <span class="cm"># файлы начинающиеся с config</span>
+<span class="prompt">$</span> find / -iname "readme.md"            <span class="cm"># без учёта регистра</span>
+
+<span class="cm"># По типу</span>
+<span class="prompt">$</span> find /etc -type f                    <span class="cm"># только файлы</span>
+<span class="prompt">$</span> find /home -type d                   <span class="cm"># только директории</span>
+
+<span class="cm"># По размеру</span>
+<span class="prompt">$</span> find / -size +100M                   <span class="cm"># больше 100MB</span>
+<span class="prompt">$</span> find /var/log -size +10M             <span class="cm"># большие логи</span>
+
+<span class="cm"># По времени изменения</span>
+<span class="prompt">$</span> find / -mtime -1                     <span class="cm"># изменён за последние 24ч</span>
+<span class="prompt">$</span> find /etc -newer /etc/passwd         <span class="cm"># новее чем passwd</span>
+
+<span class="cm"># По правам (важно для ИБ!)</span>
+<span class="prompt">$</span> find / -perm 777                     <span class="cm"># файлы с опасными правами</span>
+<span class="prompt">$</span> find / -perm -4000                   <span class="cm"># SUID-файлы (могут быть опасны)</span>
+
+<span class="cm"># Выполнить команду для найденных</span>
+<span class="prompt">$</span> find /tmp -name "*.log" -delete      <span class="cm"># найти и удалить</span>
+<span class="prompt">$</span> find . -name "*.py" -exec wc -l {} \;  <span class="cm"># подсчитать строки в каждом</span></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Найди: все файлы .env в домашней папке (могут содержать пароли), все файлы больше 50MB, все файлы изменённые за последние 24 часа. Найди SUID-файлы в системе командой <code>find / -perm -4000 2>/dev/null</code> — это важно для аудита безопасности.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d11">
+    <div class="day-head" onclick="toggleCard('d11')"><div class="day-num">11</div><div class="day-title">Перенаправление, конвейеры и pipe</div><div class="day-check" onclick="event.stopPropagation();markDone('d11')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="code-block"><span class="cm"># Перенаправление вывода</span>
+<span class="prompt">$</span> echo "Hello" > file.txt             <span class="cm"># записать (перезаписать)</span>
+<span class="prompt">$</span> echo "World" >> file.txt            <span class="cm"># дописать в конец</span>
+<span class="prompt">$</span> ls /etc > /tmp/etc_list.txt         <span class="cm"># сохранить список файлов</span>
+
+<span class="cm"># Перенаправление ошибок</span>
+<span class="prompt">$</span> command 2> errors.log               <span class="cm"># ошибки в файл</span>
+<span class="prompt">$</span> command > out.log 2>&1              <span class="cm"># и вывод и ошибки в один файл</span>
+<span class="prompt">$</span> command 2>/dev/null                 <span class="cm"># скрыть ошибки</span>
+
+<span class="cm"># Конвейер | (pipe) — вывод одной в вход другой</span>
+<span class="prompt">$</span> ls -la | grep ".py"                 <span class="cm"># найти Python файлы</span>
+<span class="prompt">$</span> cat /etc/passwd | wc -l             <span class="cm"># подсчитать строки</span>
+<span class="prompt">$</span> ps aux | grep python | grep -v grep <span class="cm"># найти Python-процессы</span>
+
+<span class="cm"># sort, uniq, cut — обработка текста</span>
+<span class="prompt">$</span> cat access.log | cut -d' ' -f1 | sort | uniq -c | sort -rn | head -10
+<span class="cm"># ^ топ-10 IP-адресов в логе nginx</span>
+
+<span class="cm"># xargs — передать список как аргументы</span>
+<span class="prompt">$</span> find . -name "*.log" | xargs rm    <span class="cm"># удалить все найденные логи</span></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Напиши одну строку которая: берёт <code>/var/log/auth.log</code>, фильтрует строки с "Failed", извлекает IP-адреса, считает количество попыток с каждого IP, сортирует по убыванию и показывает топ-5. Сохрани результат в <code>brute_force_report.txt</code>.</p></div>
+      <div class="answer-box"><div class="answer-toggle" onclick="toggleAnswer(this)">Показать ответ</div><div class="answer-content">
+        <div class="code-block">grep "Failed" /var/log/auth.log | \
+  grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | \
+  sort | uniq -c | sort -rn | head -5 > brute_force_report.txt
+cat brute_force_report.txt</div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d12">
+    <div class="day-head" onclick="toggleCard('d12')"><div class="day-num">12</div><div class="day-title">Системные логи: syslog, auth.log, journalctl</div><div class="day-check" onclick="event.stopPropagation();markDone('d12')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="code-block"><span class="cm"># Основные лог-файлы</span>
+<span class="prompt">$</span> /var/log/syslog           <span class="cm"># общий системный лог</span>
+<span class="prompt">$</span> /var/log/auth.log         <span class="cm"># аутентификация, sudo, SSH</span>
+<span class="prompt">$</span> /var/log/kern.log         <span class="cm"># ядро системы</span>
+<span class="prompt">$</span> /var/log/dpkg.log         <span class="cm"># установка пакетов</span>
+<span class="prompt">$</span> /var/log/nginx/access.log <span class="cm"># запросы к nginx</span>
+<span class="prompt">$</span> /var/log/nginx/error.log  <span class="cm"># ошибки nginx</span>
+
+<span class="cm"># Мониторинг логов</span>
+<span class="prompt">$</span> tail -f /var/log/syslog            <span class="cm"># live просмотр</span>
+<span class="prompt">$</span> tail -f /var/log/auth.log | grep "sudo"  <span class="cm"># только sudo-команды</span>
+
+<span class="cm"># journalctl (systemd логи)</span>
+<span class="prompt">$</span> journalctl                         <span class="cm"># все логи</span>
+<span class="prompt">$</span> journalctl -f                      <span class="cm"># live режим</span>
+<span class="prompt">$</span> journalctl -u nginx                <span class="cm"># логи конкретного сервиса</span>
+<span class="prompt">$</span> journalctl --since "1 hour ago"   <span class="cm"># за последний час</span>
+<span class="prompt">$</span> journalctl -p err                  <span class="cm"># только ошибки</span>
+<span class="prompt">$</span> journalctl -b                      <span class="cm"># с момента загрузки</span></div>
+      <div class="tip tip-warn"><div class="tip-label">🔒 ИБ: анализ auth.log</div><p>Регулярно проверяй <code>/var/log/auth.log</code> на подозрительную активность: много Failed password с одного IP = brute-force атака. Реагируй: блокируй IP через ufw, установи fail2ban для автоматической блокировки.</p></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Проанализируй <code>/var/log/auth.log</code>: найди все успешные входы в систему, найди все sudo-команды, посмотри есть ли попытки перебора паролей. Используй journalctl для просмотра логов сервиса ssh за последние 2 часа.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d13">
+    <div class="day-head" onclick="toggleCard('d13')"><div class="day-num">13</div><div class="day-title">Архивация: tar, gzip, zip</div><div class="day-check" onclick="event.stopPropagation();markDone('d13')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="code-block"><span class="cm"># tar — главный инструмент архивации</span>
+<span class="cm"># c=создать, x=извлечь, v=verbose, z=gzip, f=файл</span>
+
+<span class="cm"># Создание архивов</span>
+<span class="prompt">$</span> tar -czf backup.tar.gz /home/alisher/projects/   <span class="cm"># сжатый архив</span>
+<span class="prompt">$</span> tar -cf backup.tar /home/alisher/projects/        <span class="cm"># без сжатия</span>
+<span class="prompt">$</span> tar -cjf backup.tar.bz2 projects/                 <span class="cm"># bzip2 (лучше сжимает)</span>
+
+<span class="cm"># Распаковка</span>
+<span class="prompt">$</span> tar -xzf backup.tar.gz                            <span class="cm"># распаковать</span>
+<span class="prompt">$</span> tar -xzf backup.tar.gz -C /tmp/                   <span class="cm"># в другую папку</span>
+<span class="prompt">$</span> tar -tzf backup.tar.gz                            <span class="cm"># посмотреть содержимое</span>
+
+<span class="cm"># gzip для файлов</span>
+<span class="prompt">$</span> gzip large_file.log                               <span class="cm"># сжать → large_file.log.gz</span>
+<span class="prompt">$</span> gunzip large_file.log.gz                          <span class="cm"># распаковать</span>
+
+<span class="cm"># zip (совместимость с Windows)</span>
+<span class="prompt">$</span> zip -r archive.zip projects/</span>
+<span class="prompt">$</span> unzip archive.zip -d /tmp/extracted/</span>
+
+<span class="cm"># Скрипт еженедельного бэкапа</span>
+<span class="kw">#!/bin/bash</span>
+DATE=$(date +%Y-%m-%d)
+<span class="fn">tar</span> -czf /backups/backup_$DATE.tar.gz /home/alisher/projects/
+<span class="fn">echo</span> <span class="str">"Бэкап создан: backup_$DATE.tar.gz"</span></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Создай tar.gz архив твоей папки Projects. Проверь содержимое не распаковывая. Распакуй в /tmp/test/. Создай bash-скрипт для автоматического бэкапа с датой в названии файла. Сравни размер исходной папки и архива командой <code>du -sh</code>.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d14">
+    <div class="day-head" onclick="toggleCard('d14')"><div class="day-num">14</div><div class="day-title">awk и sed: мощная обработка текста</div><div class="day-check" onclick="event.stopPropagation();markDone('d14')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p><code>awk</code> и <code>sed</code> — мощные инструменты обработки текста. <code>sed</code> (stream editor) делает замены и трансформации. <code>awk</code> обрабатывает структурированные данные по колонкам. В связке с grep и pipes — незаменимы для анализа логов и парсинга данных.</p></div>
+      <div class="code-block"><span class="cm"># sed — замена в файлах и потоках</span>
+<span class="prompt">$</span> sed 's/old/new/' file.txt           <span class="cm"># заменить первое вхождение в строке</span>
+<span class="prompt">$</span> sed 's/old/new/g' file.txt          <span class="cm"># заменить все вхождения (g = global)</span>
+<span class="prompt">$</span> sed -i 's/localhost/127.0.0.1/g' config.txt  <span class="cm"># изменить файл напрямую</span>
+<span class="prompt">$</span> sed -n '5,10p' file.txt             <span class="cm"># вывести строки 5-10</span>
+<span class="prompt">$</span> sed '/^#/d' config.txt              <span class="cm"># удалить строки с комментариями</span>
+<span class="prompt">$</span> sed 's/ERROR/[ERROR]/g' app.log     <span class="cm"># выделить ошибки в логах</span>
+
+<span class="cm"># awk — обработка по полям</span>
+<span class="cm"># $1, $2... — поля (разделитель пробел/tab по умолчанию)</span>
+<span class="prompt">$</span> awk '{print $1}' access.log         <span class="cm"># первое поле (IP в nginx-логе)</span>
+<span class="prompt">$</span> awk '{print $1, $7}' access.log     <span class="cm"># IP и запрошенный URL</span>
+<span class="prompt">$</span> awk -F: '{print $1, $3}' /etc/passwd <span class="cm"># разделитель :, имя и UID</span>
+
+<span class="cm"># awk с условиями</span>
+<span class="prompt">$</span> awk '$9 == "404" {print $1, $7}' access.log   <span class="cm"># только 404 ошибки</span>
+<span class="prompt">$</span> awk '$5 > 1000000 {print $0}' data.txt         <span class="cm"># строки где поле 5 > 1MB</span>
+
+<span class="cm"># awk итог по колонке</span>
+<span class="prompt">$</span> awk '{sum += $10} END {print "Total:", sum}' access.log  <span class="cm"># суммарный трафик</span>
+
+<span class="cm"># Практическая связка: топ IP-атакующих</span>
+<span class="prompt">$</span> awk '/Failed/{print $(NF-3)}' /var/log/auth.log | sort | uniq -c | sort -rn | head -5</div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Используй sed чтобы заменить все вхождения своего имени в файле. Используй awk для анализа <code>/etc/passwd</code>: выведи только имена пользователей с UID больше 1000 (реальные пользователи). Напиши однострочник который считает суммарный размер запросов из nginx access.log.</p></div>
+    </div>
+  </div>
+
+  <div class="mini-project">
+    <div class="mp-label">🏆 Мини-проект · День 14</div>
+    <h3>Анализатор логов безопасности</h3>
+    <p>Bash-скрипт для анализа логов аутентификации и создания отчёта.</p>
+    <ul class="checklist">
+      <li>Парсить <code>/var/log/auth.log</code> на брутфорс: топ-5 атакующих IP</li>
+      <li>Найти все успешные входы с временными метками</li>
+      <li>Найти все sudo-команды за последние 24 часа</li>
+      <li>Генерировать HTML-отчёт с результатами</li>
+      <li>Бонус: отправить отчёт на email через <code>mail</code></li>
+    </ul>
+  </div>
+</div>
+
+<!-- W3 -->
+<div id="week3" class="week-section w3">
+  <div class="week-header"><div class="week-icon">🔐</div><div class="week-meta"><h2>Неделя 3 — Права доступа и пользователи</h2><p>Дни 15–21 · chmod, chown, sudo · Мини-проект: Настройка прав</p></div></div>
+
+  <div class="day-card" id="d15">
+    <div class="day-head" onclick="toggleCard('d15')"><div class="day-num">15</div><div class="day-title">Пользователи: id, who, useradd, usermod</div><div class="day-check" onclick="event.stopPropagation();markDone('d15')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="code-block"><span class="cm"># Информация о пользователях</span>
+<span class="prompt">$</span> whoami                        <span class="cm"># текущий пользователь</span>
+<span class="prompt">$</span> id                             <span class="cm"># uid, gid, группы</span>
+<span class="prompt">$</span> id alisher                     <span class="cm"># инфо о конкретном пользователе</span>
+<span class="prompt">$</span> who                            <span class="cm"># кто сейчас в системе</span>
+<span class="prompt">$</span> w                              <span class="cm"># подробнее: что делают пользователи</span>
+<span class="prompt">$</span> last                           <span class="cm"># история входов</span>
+<span class="prompt">$</span> cat /etc/passwd                <span class="cm"># все пользователи системы</span>
+
+<span class="cm"># Управление пользователями (нужен sudo)</span>
+<span class="prompt">$</span> sudo useradd -m -s /bin/bash dev_user    <span class="cm"># создать с домашней папкой</span>
+<span class="prompt">$</span> sudo passwd dev_user                     <span class="cm"># установить пароль</span>
+<span class="prompt">$</span> sudo usermod -aG sudo dev_user           <span class="cm"># добавить в группу sudo</span>
+<span class="prompt">$</span> sudo userdel -r dev_user                 <span class="cm"># удалить с домашней папкой</span>
+<span class="prompt">$</span> sudo passwd -l dev_user                  <span class="cm"># заблокировать пользователя</span>
+
+<span class="cm"># Переключение между пользователями</span>
+<span class="prompt">$</span> su - dev_user                            <span class="cm"># войти как dev_user</span>
+<span class="prompt">$</span> sudo -u dev_user command                 <span class="cm"># выполнить команду от имени</span></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Посмотри всех реальных пользователей системы (в /etc/passwd UID >= 1000 — обычные пользователи). Создай тестового пользователя <code>testdev</code> с домашней папкой. Войди под ним через su. Проверь чем отличается его окружение. Удали тестового пользователя.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d16">
+    <div class="day-head" onclick="toggleCard('d16')"><div class="day-num">16</div><div class="day-title">Sudo: безопасные права суперпользователя</div><div class="day-check" onclick="event.stopPropagation();markDone('d16')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>sudo (Substitute User DO) — выполнение команд с правами другого пользователя (обычно root). Безопаснее чем работать постоянно под root: логирует все команды, требует пароль, можно тонко настраивать через sudoers.</p></div>
+      <div class="code-block"><span class="prompt">$</span> sudo command                  <span class="cm"># выполнить как root</span>
+<span class="prompt">$</span> sudo -i                        <span class="cm"># войти в оболочку root</span>
+<span class="prompt">$</span> sudo -l                        <span class="cm"># что мне разрешено делать через sudo</span>
+<span class="prompt">$</span> sudo !!                        <span class="cm"># повторить последнюю команду с sudo</span>
+
+<span class="cm"># Настройка sudo: /etc/sudoers (редактировать только через visudo!)</span>
+<span class="prompt">$</span> sudo visudo
+
+<span class="cm"># Примеры строк в sudoers:</span>
+alisher ALL=(ALL:ALL) ALL              <span class="cm"># полные права</span>
+deploy  ALL=(ALL) NOPASSWD: /bin/systemctl restart nginx  <span class="cm"># без пароля</span>
+%developers ALL=(ALL) /usr/bin/apt    <span class="cm"># группа может использовать apt</span>
+
+<span class="cm"># Где хранятся sudo-логи</span>
+<span class="prompt">$</span> grep sudo /var/log/auth.log | tail -20</div>
+      <div class="tip tip-warn"><div class="tip-label">⚠ Безопасность sudo</div><p>Никогда не давай <code>NOPASSWD: ALL</code> обычным пользователям. На сервере давай только минимально необходимые права (принцип наименьших привилегий). Регулярно проверяй sudoers: <code>sudo cat /etc/sudoers</code>.</p></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Выполни <code>sudo -l</code> — посмотри что тебе разрешено. Обнови список пакетов через <code>sudo apt update</code>. Проверь лог sudo-действий в /var/log/auth.log. Объясни: почему лучше использовать sudo чем работать постоянно под root?</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d17">
+    <div class="day-head" onclick="toggleCard('d17')"><div class="day-num">17</div><div class="day-title">chmod: права доступа к файлам</div><div class="day-check" onclick="event.stopPropagation();markDone('d17')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>Каждый файл имеет три группы прав: владелец (u), группа (g), остальные (o). Три типа прав: r(4)=чтение, w(2)=запись, x(1)=выполнение. <code>chmod 644</code> = rw-r--r-- (владелец читает/пишет, остальные только читают).</p></div>
+      <div class="schema"><span class="label">Читаем права: -rw-r--r--</span>
+<span class="hl">-</span>   = тип: файл (-), папка (d), ссылка (l)
+<span class="hl">rw-</span> = владелец: r=4 + w=2 + -=0 → <span class="arrow">6</span>
+<span class="hl">r--</span> = группа:   r=4 + -=0 + -=0 → <span class="arrow">4</span>
+<span class="hl">r--</span> = остальные: r=4 + -=0 + -=0 → <span class="arrow">4</span>
+Итого: <span class="hl">644</span></div>
+      <div class="code-block"><span class="cm"># Числовой способ</span>
+<span class="prompt">$</span> chmod 644 file.txt           <span class="cm"># rw-r--r-- (обычный файл)</span>
+<span class="prompt">$</span> chmod 755 script.sh          <span class="cm"># rwxr-xr-x (исполняемый скрипт)</span>
+<span class="prompt">$</span> chmod 600 secret.env         <span class="cm"># rw------- (только владелец!)</span>
+<span class="prompt">$</span> chmod 700 private_dir/       <span class="cm"># rwx------ (только владелец)</span>
+<span class="prompt">$</span> chmod 777 public_dir/        <span class="cm"># ⚠ ВСЕ могут всё — ОПАСНО!</span>
+
+<span class="cm"># Символьный способ</span>
+<span class="prompt">$</span> chmod +x script.sh           <span class="cm"># добавить выполнение</span>
+<span class="prompt">$</span> chmod go-w file.txt          <span class="cm"># убрать запись у группы и остальных</span>
+<span class="prompt">$</span> chmod u+x,g-w script.sh      <span class="cm"># комбо</span>
+
+<span class="cm"># Рекурсивно для папки</span>
+<span class="prompt">$</span> chmod -R 755 /var/www/html/  <span class="cm"># все файлы веб-сервера</span></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Права</th><th>Числа</th><th>Применение</th></tr></thead>
+        <tbody>
+          <tr><td>rw-------</td><td>600</td><td>Приватный ключ SSH, .env файлы</td></tr>
+          <tr><td>rw-r--r--</td><td>644</td><td>Обычные файлы, веб-страницы</td></tr>
+          <tr><td>rwxr-xr-x</td><td>755</td><td>Скрипты, исполняемые файлы, папки</td></tr>
+          <tr><td>rwx------</td><td>700</td><td>Папки с конфиденциальными данными</td></tr>
+          <tr><td>rwxrwxrwx</td><td>777</td><td>⚠ Никогда в продакшне!</td></tr>
+        </tbody>
+      </table></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Создай файлы и установи права: <code>secret.env</code> → 600, <code>app.py</code> → 644, <code>deploy.sh</code> → 755, <code>private/</code> → 700. Проверь командой <code>ls -la</code>. Попробуй прочитать secret.env под другим пользователем — убедись что доступ запрещён.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d18">
+    <div class="day-head" onclick="toggleCard('d18')"><div class="day-num">18</div><div class="day-title">chown: владельцы файлов и групп</div><div class="day-check" onclick="event.stopPropagation();markDone('d18')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="code-block"><span class="cm"># chown: изменить владельца</span>
+<span class="prompt">$</span> sudo chown alisher file.txt          <span class="cm"># только пользователь</span>
+<span class="prompt">$</span> sudo chown alisher:devs file.txt     <span class="cm"># пользователь и группа</span>
+<span class="prompt">$</span> sudo chown :devs file.txt            <span class="cm"># только группа</span>
+<span class="prompt">$</span> sudo chown -R nginx:nginx /var/www/  <span class="cm"># рекурсивно</span>
+
+<span class="cm"># Группы</span>
+<span class="prompt">$</span> groups                               <span class="cm"># твои группы</span>
+<span class="prompt">$</span> sudo groupadd developers             <span class="cm"># создать группу</span>
+<span class="prompt">$</span> sudo usermod -aG developers alisher  <span class="cm"># добавить в группу</span>
+<span class="prompt">$</span> sudo gpasswd -d alisher developers   <span class="cm"># убрать из группы</span>
+<span class="prompt">$</span> cat /etc/group                       <span class="cm"># все группы системы</span>
+
+<span class="cm"># Реальный кейс: настройка прав для веб-сервера</span>
+<span class="prompt">$</span> sudo chown -R www-data:www-data /var/www/html/
+<span class="prompt">$</span> sudo chmod -R 755 /var/www/html/
+<span class="prompt">$</span> sudo usermod -aG www-data alisher    <span class="cm"># добавить себя в группу nginx</span></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Создай группу <code>backend_team</code>. Создай двух пользователей <code>dev1</code> и <code>dev2</code>, добавь их в группу. Создай папку <code>/opt/backend/</code> принадлежащую группе backend_team с правами 770. Проверь что оба пользователя могут писать в эту папку, а другие — нет.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d19">
+    <div class="day-head" onclick="toggleCard('d19')"><div class="day-num">19</div><div class="day-title">SSH: безопасное удалённое подключение</div><div class="day-check" onclick="event.stopPropagation();markDone('d19')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>SSH (Secure Shell) — стандартный протокол удалённого управления серверами. Ключевая пара (публичный + приватный ключ) безопаснее паролей. Знание SSH обязательно для любого backend-разработчика.</p></div>
+      <div class="code-block"><span class="cm"># Подключение по SSH</span>
+<span class="prompt">$</span> ssh user@hostname               <span class="cm"># подключиться (спросит пароль)</span>
+<span class="prompt">$</span> ssh user@192.168.1.100          <span class="cm"># по IP</span>
+<span class="prompt">$</span> ssh -p 2222 user@host           <span class="cm"># нестандартный порт</span>
+
+<span class="cm"># Генерация SSH-ключей</span>
+<span class="prompt">$</span> ssh-keygen -t ed25519 -C "email@example.com"
+<span class="cm"># Создаст: ~/.ssh/id_ed25519 (приватный) и ~/.ssh/id_ed25519.pub (публичный)</span>
+
+<span class="cm"># Копирование публичного ключа на сервер</span>
+<span class="prompt">$</span> ssh-copy-id user@server         <span class="cm"># автоматически</span>
+<span class="cm"># Или вручную: добавить ~/.ssh/id_ed25519.pub в ~/.ssh/authorized_keys на сервере</span>
+
+<span class="cm"># Подключение по ключу (без пароля)</span>
+<span class="prompt">$</span> ssh -i ~/.ssh/id_ed25519 user@server
+
+<span class="cm"># Конфиг для удобства (~/.ssh/config)</span>
+<span class="kw">Host</span> myserver
+    HostName 192.168.1.100
+    User alisher
+    IdentityFile ~/.ssh/id_ed25519
+    Port 22
+
+<span class="prompt">$</span> ssh myserver                    <span class="cm"># теперь так просто!</span>
+
+<span class="cm"># Передача файлов</span>
+<span class="prompt">$</span> scp file.txt user@server:/tmp/  <span class="cm"># скопировать на сервер</span>
+<span class="prompt">$</span> scp -r ./app/ user@server:~/    <span class="cm"># папку целиком</span></div>
+      <div class="tip tip-warn"><div class="tip-label">🔒 Безопасность SSH</div><p>Никогда не передавай приватный ключ (<code>id_ed25519</code>) — только публичный (<code>.pub</code>). Права на приватный ключ должны быть <code>600</code>: <code>chmod 600 ~/.ssh/id_ed25519</code>. Иначе SSH откажется его использовать.</p></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Сгенерируй пару SSH-ключей (ed25519). Изучи содержимое публичного ключа. Настрой <code>~/.ssh/config</code> с псевдонимом для подключения. Если есть доступ к серверу — подключись по ключу. Проверь права папки <code>~/.ssh</code> (должны быть 700) и файлов ключей (600).</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d20">
+    <div class="day-head" onclick="toggleCard('d20')"><div class="day-num">20</div><div class="day-title">Firewall: ufw и управление сетью</div><div class="day-check" onclick="event.stopPropagation();markDone('d20')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>UFW (Uncomplicated Firewall) — простой интерфейс к iptables. На любом продакшн-сервере брандмауэр обязателен. Правило: по умолчанию всё запрещено, разрешаем только нужные порты.</p></div>
+      <div class="code-block"><span class="cm"># Статус и включение</span>
+<span class="prompt">$</span> sudo ufw status               <span class="cm"># текущие правила</span>
+<span class="prompt">$</span> sudo ufw status verbose        <span class="cm"># подробно</span>
+<span class="prompt">$</span> sudo ufw enable                <span class="cm"># включить (сохраняется после перезагрузки)</span>
+<span class="prompt">$</span> sudo ufw disable               <span class="cm"># отключить</span>
+
+<span class="cm"># Правила по умолчанию (делай это ПЕРВЫМ)</span>
+<span class="prompt">$</span> sudo ufw default deny incoming  <span class="cm"># запретить всё входящее</span>
+<span class="prompt">$</span> sudo ufw default allow outgoing <span class="cm"># разрешить исходящее</span>
+
+<span class="cm"># Разрешить сервисы</span>
+<span class="prompt">$</span> sudo ufw allow ssh              <span class="cm"># порт 22 (ВАЖНО: до enable!)</span>
+<span class="prompt">$</span> sudo ufw allow 80               <span class="cm"># HTTP</span>
+<span class="prompt">$</span> sudo ufw allow 443              <span class="cm"># HTTPS</span>
+<span class="prompt">$</span> sudo ufw allow 5432             <span class="cm"># PostgreSQL</span>
+
+<span class="cm"># Ограничить brute-force SSH</span>
+<span class="prompt">$</span> sudo ufw limit ssh              <span class="cm"># максимум 6 попыток за 30 секунд</span>
+
+<span class="cm"># Запретить конкретный IP</span>
+<span class="prompt">$</span> sudo ufw deny from 192.168.1.50
+<span class="prompt">$</span> sudo ufw delete deny from 192.168.1.50  <span class="cm"># удалить правило</span>
+
+<span class="cm"># Сетевые утилиты</span>
+<span class="prompt">$</span> ss -tlnp                       <span class="cm"># открытые порты и процессы</span>
+<span class="prompt">$</span> netstat -tlnp                  <span class="cm"># аналог (старый)</span>
+<span class="prompt">$</span> curl ifconfig.me               <span class="cm"># внешний IP сервера</span></div>
+      <div class="tip tip-danger"><div class="tip-label">⚠ Важно</div><p>Всегда разрешай SSH (<code>sudo ufw allow ssh</code>) ПЕРЕД включением firewall (<code>sudo ufw enable</code>). Иначе заблокируешь себя и потеряешь доступ к серверу.</p></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Включи UFW с правилами: запретить всё входящее, разрешить SSH, HTTP, HTTPS. Включи лимит на SSH для защиты от brute-force. Проверь открытые порты через <code>ss -tlnp</code>. Посмотри статус firewall. Если запускаешь веб-сервер — проверь доступность через браузер.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d21">
+    <div class="day-head" onclick="toggleCard('d21')"><div class="day-num">21</div><div class="day-title">fail2ban и защита от атак</div><div class="day-check" onclick="event.stopPropagation();markDone('d21')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>fail2ban — утилита которая автоматически блокирует IP-адреса при обнаружении подозрительной активности (брутфорс SSH, спам в веб-формах). Анализирует логи и добавляет правила в iptables/ufw.</p></div>
+      <div class="code-block"><span class="cm"># Установка</span>
+<span class="prompt">$</span> sudo apt install fail2ban
+
+<span class="cm"># Статус</span>
+<span class="prompt">$</span> sudo systemctl status fail2ban
+<span class="prompt">$</span> sudo fail2ban-client status         <span class="cm"># список активных jail</span>
+<span class="prompt">$</span> sudo fail2ban-client status sshd    <span class="cm"># статус jail для SSH</span>
+
+<span class="cm"># Конфигурация /etc/fail2ban/jail.local</span>
+<span class="kw">[DEFAULT]</span>
+bantime  = 3600      <span class="cm"># блокировка на 1 час</span>
+findtime = 600       <span class="cm"># за 10 минут</span>
+maxretry = 5         <span class="cm"># максимум 5 попыток</span>
+
+<span class="kw">[sshd]</span>
+enabled  = true
+port     = ssh
+logpath  = /var/log/auth.log
+maxretry = 3         <span class="cm"># строже для SSH</span>
+
+<span class="cm"># Управление</span>
+<span class="prompt">$</span> sudo fail2ban-client set sshd unbanip 1.2.3.4  <span class="cm"># разблокировать IP</span>
+<span class="prompt">$</span> sudo fail2ban-client set sshd banip 5.6.7.8    <span class="cm"># заблокировать вручную</span>
+
+<span class="cm"># Просмотр заблокированных IP</span>
+<span class="prompt">$</span> sudo iptables -n -L INPUT | grep DROP</div>
+      <div class="tip tip-info"><div class="tip-label">💡 Реальная защита сервера</div><p>Связка UFW + fail2ban + SSH по ключам закрывает 99% атак на типичный VPS. Дополнительно: смени порт SSH (не 22), отключи вход под root (<code>PermitRootLogin no</code> в <code>/etc/ssh/sshd_config</code>).</p></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Установи и настрой fail2ban. Создай <code>/etc/fail2ban/jail.local</code> с настройками для SSH (maxretry=3, bantime=1h). Перезапусти сервис и проверь статус. Посмотри сколько IP уже заблокировано. Проверь логи fail2ban в <code>/var/log/fail2ban.log</code>.</p></div>
+    </div>
+  </div>
+
+  <div class="mini-project">
+    <div class="mp-label">🏆 Мини-проект · День 21</div>
+    <h3>Настройка безопасного окружения сервера</h3>
+    <p>Настрой систему прав как в реальном продакшн-окружении.</p>
+    <ul class="checklist">
+      <li>Создать пользователя <code>deploy</code> без прав sudo (только для деплоя)</li>
+      <li>Папка <code>/var/www/app</code>: права 755, владелец www-data, группа developers</li>
+      <li>Папка <code>/etc/app/secrets</code>: права 700, только root читает</li>
+      <li>Файл <code>.env</code>: права 600, владелец deploy</li>
+      <li>Дать пользователю deploy право только на <code>systemctl restart app</code> через sudoers</li>
+    </ul>
+  </div>
+</div>
+
+<!-- W4 -->
+<div id="week4" class="week-section w4">
+  <div class="week-header"><div class="week-icon">⚙️</div><div class="week-meta"><h2>Неделя 4 — Управление системой и автоматизация</h2><p>Дни 22–30 · Процессы, службы, bash-скрипты, cron · Финальный проект</p></div></div>
+
+  <div class="day-card" id="d22">
+    <div class="day-head" onclick="toggleCard('d22')"><div class="day-num">22</div><div class="day-title">Менеджер пакетов apt</div><div class="day-check" onclick="event.stopPropagation();markDone('d22')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="code-block"><span class="cm"># apt — Advanced Package Tool (Ubuntu/Debian)</span>
+<span class="prompt">$</span> sudo apt update                    <span class="cm"># обновить список пакетов</span>
+<span class="prompt">$</span> sudo apt upgrade                   <span class="cm"># обновить все пакеты</span>
+<span class="prompt">$</span> sudo apt install nginx python3 git  <span class="cm"># установить пакеты</span>
+<span class="prompt">$</span> sudo apt remove nginx              <span class="cm"># удалить (конфиги остаются)</span>
+<span class="prompt">$</span> sudo apt purge nginx               <span class="cm"># удалить с конфигами</span>
+<span class="prompt">$</span> sudo apt autoremove               <span class="cm"># удалить ненужные зависимости</span>
+<span class="prompt">$</span> apt search python3                 <span class="cm"># поиск пакета</span>
+<span class="prompt">$</span> apt show nginx                     <span class="cm"># информация о пакете</span>
+<span class="prompt">$</span> dpkg -l | grep python              <span class="cm"># список установленных</span>
+
+<span class="cm"># pip — менеджер пакетов Python</span>
+<span class="prompt">$</span> pip3 install flask psycopg2        <span class="cm"># установить</span>
+<span class="prompt">$</span> pip3 install -r requirements.txt   <span class="cm"># из файла зависимостей</span>
+<span class="prompt">$</span> pip3 list                          <span class="cm"># список установленных</span>
+<span class="prompt">$</span> pip3 freeze > requirements.txt     <span class="cm"># сохранить зависимости</span></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Обнови систему через apt update + upgrade. Установи: <code>htop</code>, <code>curl</code>, <code>git</code>, <code>python3-pip</code>. Установи через pip: <code>requests</code>, <code>flask</code>. Создай <code>requirements.txt</code> через <code>pip3 freeze</code>.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d23">
+    <div class="day-head" onclick="toggleCard('d23')"><div class="day-num">23</div><div class="day-title">Процессы: ps, top, htop, kill</div><div class="day-check" onclick="event.stopPropagation();markDone('d23')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="code-block"><span class="cm"># Просмотр процессов</span>
+<span class="prompt">$</span> ps aux                        <span class="cm"># все процессы</span>
+<span class="prompt">$</span> ps aux | grep python          <span class="cm"># найти Python-процессы</span>
+<span class="prompt">$</span> top                           <span class="cm"># live монитор (q выйти)</span>
+<span class="prompt">$</span> htop                          <span class="cm"># красивый live монитор</span>
+
+<span class="cm"># Информация о процессе</span>
+<span class="prompt">$</span> pgrep nginx                   <span class="cm"># PID процесса nginx</span>
+<span class="prompt">$</span> pidof python3                 <span class="cm"># PID python</span>
+<span class="prompt">$</span> lsof -p 1234                  <span class="cm"># файлы открытые процессом</span>
+<span class="prompt">$</span> lsof -i :8080                 <span class="cm"># что занимает порт 8080</span>
+
+<span class="cm"># Управление процессами</span>
+<span class="prompt">$</span> kill 1234                     <span class="cm"># мягко завершить (SIGTERM)</span>
+<span class="prompt">$</span> kill -9 1234                  <span class="cm"># принудительно (SIGKILL)</span>
+<span class="prompt">$</span> killall nginx                 <span class="cm"># завершить все nginx</span>
+<span class="prompt">$</span> pkill -f "python app.py"      <span class="cm"># по имени команды</span>
+
+<span class="cm"># Фоновые процессы</span>
+<span class="prompt">$</span> python3 server.py &           <span class="cm"># запустить в фоне</span>
+<span class="prompt">$</span> jobs                          <span class="cm"># список фоновых задач</span>
+<span class="prompt">$</span> fg                            <span class="cm"># вернуть на передний план</span>
+<span class="prompt">$</span> nohup python3 server.py &     <span class="cm"># продолжает после выхода</span></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Запусти <code>htop</code> — найди самый «тяжёлый» процесс по CPU и по памяти. Найди PID процесса sshd. Запусти <code>sleep 1000 &</code> в фоне, найди его через <code>ps aux | grep sleep</code> и завершь через kill. Что занимает порт 22?</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d24">
+    <div class="day-head" onclick="toggleCard('d24')"><div class="day-num">24</div><div class="day-title">systemctl: управление службами</div><div class="day-check" onclick="event.stopPropagation();markDone('d24')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="code-block"><span class="cm"># Управление службами через systemctl</span>
+<span class="prompt">$</span> sudo systemctl status nginx          <span class="cm"># статус службы</span>
+<span class="prompt">$</span> sudo systemctl start nginx           <span class="cm"># запустить</span>
+<span class="prompt">$</span> sudo systemctl stop nginx            <span class="cm"># остановить</span>
+<span class="prompt">$</span> sudo systemctl restart nginx         <span class="cm"># перезапустить</span>
+<span class="prompt">$</span> sudo systemctl reload nginx          <span class="cm"># перечитать конфиг (без остановки)</span>
+<span class="prompt">$</span> sudo systemctl enable nginx          <span class="cm"># автозапуск при загрузке</span>
+<span class="prompt">$</span> sudo systemctl disable nginx         <span class="cm"># отключить автозапуск</span>
+<span class="prompt">$</span> systemctl list-units --type=service  <span class="cm"># все активные службы</span>
+
+<span class="cm"># Создание своей службы (unit-файл)</span>
+<span class="cm"># /etc/systemd/system/myapp.service</span>
+[Unit]
+Description=My Python Backend App
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=deploy
+WorkingDirectory=/var/www/app
+ExecStart=/usr/bin/python3 app.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+<span class="prompt">$</span> sudo systemctl daemon-reload         <span class="cm"># применить новый unit-файл</span>
+<span class="prompt">$</span> sudo systemctl enable --now myapp    <span class="cm"># включить и запустить</span></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Установи nginx (<code>sudo apt install nginx</code>). Проверь статус. Включи автозапуск. Создай systemd unit-файл для простого Python-приложения (<code>python3 -m http.server 8080</code>). Проверь что приложение автоматически перезапускается после kill.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d25">
+    <div class="day-head" onclick="toggleCard('d25')"><div class="day-num">25</div><div class="day-title">Bash-скрипты: переменные, условия, циклы</div><div class="day-check" onclick="event.stopPropagation();markDone('d25')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="code-block"><span class="kw">#!/bin/bash</span>
+<span class="cm"># Переменные</span>
+NAME=<span class="str">"Алишер"</span>                        <span class="cm"># без пробелов вокруг =</span>
+AGE=21
+TODAY=$(date +%Y-%m-%d)               <span class="cm"># команда в $() </span>
+FILES=$(ls -1 | wc -l)               <span class="cm"># количество файлов</span>
+
+<span class="fn">echo</span> <span class="str">"Привет, $NAME! Файлов: $FILES"</span>
+<span class="fn">echo</span> <span class="str">"Дата: $TODAY"</span>
+
+<span class="cm"># Условия</span>
+<span class="kw">if</span> [ $AGE -ge 18 ]; <span class="kw">then</span>
+    <span class="fn">echo</span> <span class="str">"Совершеннолетний"</span>
+<span class="kw">elif</span> [ $AGE -ge 12 ]; <span class="kw">then</span>
+    <span class="fn">echo</span> <span class="str">"Подросток"</span>
+<span class="kw">else</span>
+    <span class="fn">echo</span> <span class="str">"Ребёнок"</span>
+<span class="kw">fi</span>
+
+<span class="cm"># Проверка файла</span>
+<span class="kw">if</span> [ -f <span class="str">"/etc/nginx/nginx.conf"</span> ]; <span class="kw">then</span>
+    <span class="fn">echo</span> <span class="str">"nginx установлен"</span>
+<span class="kw">fi</span>
+
+<span class="cm"># Цикл for</span>
+<span class="kw">for</span> i <span class="kw">in</span> 1 2 3 4 5; <span class="kw">do</span>
+    <span class="fn">echo</span> <span class="str">"Шаг $i"</span>
+<span class="kw">done</span>
+
+<span class="cm"># Цикл по файлам</span>
+<span class="kw">for</span> file <span class="kw">in</span> /var/log/*.log; <span class="kw">do</span>
+    size=$(du -sh <span class="str">"$file"</span> | cut -f1)
+    <span class="fn">echo</span> <span class="str">"$file: $size"</span>
+<span class="kw">done</span>
+
+<span class="cm"># Функции</span>
+<span class="kw">function</span> <span class="fn">check_service</span>() {
+    <span class="kw">if</span> systemctl is-active --quiet $1; <span class="kw">then</span>
+        <span class="fn">echo</span> <span class="str">"✅ $1 работает"</span>
+    <span class="kw">else</span>
+        <span class="fn">echo</span> <span class="str">"❌ $1 не работает"</span>
+    <span class="kw">fi</span>
+}
+<span class="fn">check_service</span> nginx
+<span class="fn">check_service</span> postgresql</div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Напиши скрипт <code>server_check.sh</code> который: 1) проверяет статус nginx, postgresql, ssh, 2) выводит использование диска (<code>df -h</code>), 3) выводит топ-3 процесса по CPU, 4) проверяет доступность google.com через ping. Сделай скрипт цветным через ANSI-коды.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d26">
+    <div class="day-head" onclick="toggleCard('d26')"><div class="day-num">26</div><div class="day-title">Docker: основы контейнеризации</div><div class="day-check" onclick="event.stopPropagation();markDone('d26')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>Docker позволяет упаковать приложение со всеми зависимостями в контейнер — изолированное окружение. Контейнеры запускаются одинаково на любой машине: ноутбук разработчика, CI/CD, продакшн-сервер. Это решает проблему «у меня работает, а у тебя нет».</p></div>
+      <div class="code-block"><span class="cm"># Установка Docker</span>
+<span class="prompt">$</span> sudo apt install docker.io
+<span class="prompt">$</span> sudo usermod -aG docker $USER   <span class="cm"># добавить себя в группу (без sudo)</span>
+<span class="prompt">$</span> newgrp docker                   <span class="cm"># применить без перелогина</span>
+
+<span class="cm"># Основные команды</span>
+<span class="prompt">$</span> docker version                  <span class="cm"># версия</span>
+<span class="prompt">$</span> docker pull ubuntu:22.04        <span class="cm"># скачать образ</span>
+<span class="prompt">$</span> docker images                   <span class="cm"># список образов</span>
+<span class="prompt">$</span> docker ps                       <span class="cm"># запущенные контейнеры</span>
+<span class="prompt">$</span> docker ps -a                    <span class="cm"># все (включая остановленные)</span>
+
+<span class="cm"># Запуск контейнеров</span>
+<span class="prompt">$</span> docker run ubuntu echo "hello"  <span class="cm"># запустить и выйти</span>
+<span class="prompt">$</span> docker run -it ubuntu bash      <span class="cm"># интерактивный shell</span>
+<span class="prompt">$</span> docker run -d -p 80:80 nginx    <span class="cm"># nginx в фоне, порт 80</span>
+
+<span class="cm"># Управление</span>
+<span class="prompt">$</span> docker stop container_id        <span class="cm"># остановить</span>
+<span class="prompt">$</span> docker rm container_id          <span class="cm"># удалить контейнер</span>
+<span class="prompt">$</span> docker rmi nginx                <span class="cm"># удалить образ</span>
+<span class="prompt">$</span> docker logs container_id        <span class="cm"># логи контейнера</span>
+<span class="prompt">$</span> docker exec -it container bash  <span class="cm"># войти в работающий</span></div>
+      <div class="tip tip-info"><div class="tip-label">💡 Docker в Backend разработке</div><p>Типичный стек: приложение на Python/Node + PostgreSQL + Redis — каждый сервис в своём контейнере. <code>docker-compose</code> запускает всё одной командой: <code>docker-compose up -d</code>. Это стандарт в современной разработке.</p></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Установи Docker. Запусти контейнер nginx на порту 8080 и открой в браузере. Войди в запущенный контейнер через <code>exec</code>. Запусти контейнер PostgreSQL с переменными окружения. Останови и удали оба контейнера. Посмотри сколько места занимают образы.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d27">
+    <div class="day-head" onclick="toggleCard('d27')"><div class="day-num">27</div><div class="day-title">Dockerfile: создание собственных образов</div><div class="day-check" onclick="event.stopPropagation();markDone('d27')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>Dockerfile — инструкция сборки образа. Каждая команда создаёт новый слой, слои кешируются. Правильная структура Dockerfile критична для скорости сборки и размера итогового образа.</p></div>
+      <div class="code-block"><span class="cm"># Dockerfile для Python Flask приложения</span>
+<span class="kw">FROM</span> python:3.11-slim          <span class="cm"># базовый образ</span>
+
+<span class="kw">WORKDIR</span> /app                   <span class="cm"># рабочая директория</span>
+
+<span class="kw">COPY</span> requirements.txt .        <span class="cm"># сначала зависимости (кеш!)</span>
+<span class="kw">RUN</span> pip install -r requirements.txt
+
+<span class="kw">COPY</span> . .                       <span class="cm"># потом исходный код</span>
+
+<span class="kw">EXPOSE</span> 5000                    <span class="cm"># документируем порт</span>
+
+<span class="kw">ENV</span> FLASK_ENV=production
+<span class="kw">ENV</span> PYTHONUNBUFFERED=1
+
+<span class="kw">CMD</span> ["python", "app.py"]       <span class="cm"># команда запуска</span>
+
+<span class="cm"># Сборка и запуск</span>
+<span class="prompt">$</span> docker build -t myapp:v1 .   <span class="cm"># собрать образ</span>
+<span class="prompt">$</span> docker build -t myapp:v1 --no-cache .  <span class="cm"># без кеша</span>
+<span class="prompt">$</span> docker run -p 5000:5000 myapp:v1
+
+<span class="cm"># .dockerignore (как .gitignore для Docker)</span>
+<span class="fn">__pycache__</span>
+<span class="fn">.env</span>
+<span class="fn">*.pyc</span>
+<span class="fn">.git</span>
+<span class="fn">node_modules</span></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Создай простое Flask-приложение (hello world + один эндпоинт). Напиши Dockerfile. Создай <code>.dockerignore</code>. Собери образ и запусти. Проверь через curl или браузер. Посмотри слои образа через <code>docker history myapp:v1</code>. Попробуй уменьшить размер образа используя <code>python:3.11-alpine</code>.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d28">
+    <div class="day-head" onclick="toggleCard('d28')"><div class="day-num">28</div><div class="day-title">Мониторинг системы: htop, iotop, nethogs</div><div class="day-check" onclick="event.stopPropagation();markDone('d28')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что изучить</label><p>Мониторинг — основа эксплуатации серверов. Нужно уметь быстро найти что жрёт CPU, память, диск или сеть. Это критично при инцидентах в продакшн.</p></div>
+      <div class="code-block"><span class="cm"># htop — интерактивный менеджер процессов</span>
+<span class="prompt">$</span> sudo apt install htop
+<span class="prompt">$</span> htop
+<span class="cm"># F5 = дерево процессов, F6 = сортировка, F9 = kill, q = выход</span>
+
+<span class="cm"># Использование памяти</span>
+<span class="prompt">$</span> free -h                         <span class="cm"># RAM и swap</span>
+<span class="prompt">$</span> vmstat 1 5                      <span class="cm"># статистика каждую секунду, 5 раз</span>
+
+<span class="cm"># Диск</span>
+<span class="prompt">$</span> df -h                           <span class="cm"># свободное место на разделах</span>
+<span class="prompt">$</span> du -sh /var/log/*               <span class="cm"># размер каждого лога</span>
+<span class="prompt">$</span> du -sh * | sort -hr | head -10  <span class="cm"># топ-10 самых больших папок</span>
+<span class="prompt">$</span> sudo apt install iotop
+<span class="prompt">$</span> sudo iotop                      <span class="cm"># какой процесс читает/пишет диск</span>
+
+<span class="cm"># Сеть</span>
+<span class="prompt">$</span> sudo apt install nethogs
+<span class="prompt">$</span> sudo nethogs                    <span class="cm"># трафик по процессам</span>
+<span class="prompt">$</span> sudo apt install nload
+<span class="prompt">$</span> sudo nload                      <span class="cm"># входящий/исходящий трафик</span>
+
+<span class="cm"># Быстрая диагностика одной командой</span>
+<span class="prompt">$</span> top -bn1 | grep "Cpu"          <span class="cm"># CPU прямо сейчас</span>
+<span class="prompt">$</span> ps aux --sort=-%cpu | head -5  <span class="cm"># топ-5 по CPU</span>
+<span class="prompt">$</span> ps aux --sort=-%mem | head -5  <span class="cm"># топ-5 по памяти</span></div>
+      <div class="tip tip-info"><div class="tip-label">💡 Load Average</div><p>Первые 3 числа в <code>top</code> и <code>uptime</code> — load average за 1, 5, 15 минут. Нормальное значение ≤ количества ядер CPU. Если число больше числа ядер — система перегружена. Узнай количество ядер: <code>nproc</code>.</p></div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Установи htop, iotop, nethogs. Запусти нагрузочный тест: <code>stress --cpu 2 --timeout 30</code> (установи через apt) и наблюдай в htop. Найди топ-5 процессов по памяти. Узнай какая папка занимает больше всего места в <code>/var</code>. Напиши скрипт выводящий сводку системы одной командой.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d29">
+    <div class="day-head" onclick="toggleCard('d29')"><div class="day-num">29</div><div class="day-title">Cron: планировщик задач</div><div class="day-check" onclick="event.stopPropagation();markDone('d29')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="code-block"><span class="cm"># Редактировать расписание</span>
+<span class="prompt">$</span> crontab -e                    <span class="cm"># открыть редактор</span>
+<span class="prompt">$</span> crontab -l                    <span class="cm"># показать расписание</span>
+<span class="prompt">$</span> crontab -r                    <span class="cm"># удалить всё расписание</span>
+
+<span class="cm"># Формат: минута час день месяц день_недели команда</span>
+<span class="cm">#         0-59  0-23 1-31 1-12  0-7</span>
+
+<span class="cm"># Примеры:</span>
+<span class="fn">*/5 * * * *</span>    /opt/monitor.sh           <span class="cm"># каждые 5 минут</span>
+<span class="fn">0 * * * *</span>      /opt/backup.sh            <span class="cm"># каждый час в :00</span>
+<span class="fn">0 3 * * *</span>      /opt/daily_backup.sh      <span class="cm"># каждый день в 3:00</span>
+<span class="fn">0 3 * * 0</span>      /opt/weekly_report.sh     <span class="cm"># каждое воскресенье</span>
+<span class="fn">0 0 1 * *</span>      /opt/monthly_cleanup.sh   <span class="cm"># 1-го числа каждого месяца</span>
+<span class="fn">@reboot</span>        /opt/start_app.sh         <span class="cm"># при каждой загрузке</span>
+
+<span class="cm"># Логирование cron-задач</span>
+<span class="fn">0 3 * * *</span> /opt/backup.sh >> /var/log/backup.log 2>&1
+
+<span class="cm"># Проверить выполнение cron</span>
+<span class="prompt">$</span> grep CRON /var/log/syslog | tail -20</div>
+      <div class="task-box"><div class="task-label">Задача дня</div><p>Настрой 3 cron-задачи: 1) каждые 5 минут проверять доступность сайта и писать в лог, 2) каждый день в 3:00 делать бэкап папки Projects, 3) каждую полночь очищать <code>/tmp</code>. Проверь выполнение задач через syslog.</p></div>
+    </div>
+  </div>
+
+  <div class="day-card" id="d30">
+    <div class="day-head" onclick="toggleCard('d30')"><div class="day-num">30</div><div class="day-title">Итог курса: твой путь Linux-разработчика</div><div class="day-check" onclick="event.stopPropagation();markDone('d30')">✓</div><div class="day-arrow">▶</div></div>
+    <div class="day-body">
+      <div class="section-row"><label>Что ты освоил за 30 дней</label><p>Ты прошёл путь от нулевого знакомства с терминалом до уверенного управления Linux-сервером. Это фундамент который используют backend-разработчики и DevOps-инженеры каждый день.</p></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Неделя</th><th>Навыки</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td>W1 · Терминал</td><td>ls, cd, nano, bash, переменные</td><td style="color:var(--accent)">✓ Пройдено</td></tr>
+          <tr><td>W2 · Файлы & Логи</td><td>grep, find, pipes, tar, journalctl</td><td style="color:var(--accent)">✓ Пройдено</td></tr>
+          <tr><td>W3 · Права & Юзеры</td><td>chmod, sudo, SSH, UFW, fail2ban</td><td style="color:var(--accent)">✓ Пройдено</td></tr>
+          <tr><td>W4 · Автоматизация</td><td>systemd, bash-скрипты, Docker, cron</td><td style="color:var(--accent)">✓ Пройдено</td></tr>
+        </tbody>
+      </table></div>
+      <div class="section-row"><label>Что дальше</label>
+        <div class="code-block"><span class="cm"># Следующие шаги для Backend разработчика:</span>
+
+<span class="hl">1. Nginx как обратный прокси</span>
+   <span class="cm">→ Настройка виртуальных хостов, SSL через Let's Encrypt</span>
+
+<span class="hl">2. Docker Compose</span>
+   <span class="cm">→ Многоконтейнерные приложения (app + db + redis)</span>
+
+<span class="hl">3. CI/CD основы</span>
+   <span class="cm">→ GitHub Actions, автодеплой на сервер по push</span>
+
+<span class="hl">4. Мониторинг продакшн</span>
+   <span class="cm">→ Prometheus + Grafana, алерты в Telegram</span>
+
+<span class="hl">5. Kubernetes (k8s)</span>
+   <span class="cm">→ Оркестрация контейнеров для больших систем</span></div>
+      </div>
+      <div class="tip tip-info"><div class="tip-label">🎯 Совет на будущее</div><p>Лучший способ закрепить знания — настроить реальный VPS (DigitalOcean, Hetzner от $3-5/месяц). Задеплой туда своё приложение с нуля: nginx + SSL + Docker + cron-бэкапы. Это то что спрашивают на Backend-собеседованиях.</p></div>
+      <div class="task-box"><div class="task-label">Финальная задача</div><p>Напиши <code>README.md</code> — что ты умеешь после этого курса. Перечисли 10 команд которые используешь чаще всего. Опиши что бы ты делал если бы сервер внезапно лёг (план действий). Это отличный материал для резюме и портфолио.</p></div>
+    </div>
+  </div>
+
+  <div class="mini-project">
+    <div class="mp-label">🎓 Финальный проект · День 30</div>
+    <h3>Bash Админ-панель</h3>
+    <p>Профессиональный скрипт для мониторинга и управления Linux-сервером.</p>
+    <ul class="checklist">
+      <li>Цветное меню: мониторинг, логи, службы, бэкап, безопасность</li>
+      <li>Мониторинг: загрузка CPU, RAM, диска в реальном времени</li>
+      <li>Логи: просмотр последних ошибок из syslog и auth.log</li>
+      <li>Службы: статус nginx, postgresql, ssh с возможностью restart</li>
+      <li>Безопасность: топ IP-атакующих, последние sudo-команды</li>
+      <li>Бэкап: создание архива с датой в /backups/</li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer">Linux для разработчика · 30 дней · Backend & Security · <span style="color:var(--accent)">2025</span></div>
+</div>
+<script>
+const KEY='linux30_v1';
+let done=JSON.parse(localStorage.getItem(KEY)||'[]');
+function markDone(id){const card=document.getElementById(id);if(done.includes(id)){done=done.filter(d=>d!==id);card.classList.remove('done');}else{done.push(id);card.classList.add('done');}localStorage.setItem(KEY,JSON.stringify(done));updateProgress();}
+function updateProgress(){const pct=Math.round(done.length/30*100);document.getElementById('prog-val').textContent=pct+'%';document.getElementById('bar').style.width=pct+'%';document.getElementById('done-count').textContent=done.length;}
+function toggleCard(id){document.getElementById(id).classList.toggle('open');}
+function toggleAnswer(btn){btn.classList.toggle('open');btn.nextElementSibling.classList.toggle('show');}
+function showWeek(n){document.querySelectorAll('.week-section').forEach(s=>s.classList.remove('show'));document.getElementById('week'+n).classList.add('show');document.querySelectorAll('.wnav').forEach(b=>b.className='wnav');document.querySelectorAll('.wnav')[n-1].classList.add('aw'+n);}
+done.forEach(id=>{const c=document.getElementById(id);if(c)c.classList.add('done');});updateProgress();
+</script>
+</body>
+</html>
